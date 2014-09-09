@@ -1,0 +1,244 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+ <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://apis.google.com/js/client.js?onload=handleClientLoad"></script>
+        <script type="text/javascript" src="https://apis.google.com/js/api.js"></script>
+	<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Ubuntu:regular&subset=Latin,Cyrillic">
+	<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+	<style type="text/css">
+
+@import url(http://weloveiconfonts.com/api/?family=brandico);
+
+/* brandico */
+[class*="brandico-"]:before {
+  font-family: 'brandico', sans-serif;
+}
+
+	*{
+	font-family: Ubuntu, sans-serif;
+	}
+	
+	a:hover { 
+    color: #66a3e0;
+}
+footer{
+font-size: 10px;
+bottom: -50px;
+    height: 100px;
+    left: 70%;
+    position: absolute;
+    width: 100%;
+}
+	.scrollToTop{
+	width:100px; 
+	height:130px;
+	padding:10px; 
+	text-align:center; 
+	background: whiteSmoke;
+	font-weight: bold;
+	color: #444;
+	text-decoration: none;
+	position:fixed;
+	top:75px;
+	right:40px;
+	display:none;
+	background: url('arrow_up.png') no-repeat 0px 20px;
+}
+.scrollToTop:hover{
+	text-decoration:none;
+}
+		.order{
+		margin-left: 200px;		
+		width: 800px;
+		}
+		.subject{
+		text-decoration: none;
+		color: #f16745;
+		margin-left: 200px;		
+		width: 200px;
+		}
+		.subject:active{
+		text-decoration: none;
+		color: #66a3e0;
+		margin-left: 200px;		
+		width: 800px;
+		}
+		.reason{
+		font-size: 20px;
+		color: black;
+		text-decoration: none;
+		word-wrap:break-word;		
+		}
+		.reason:active{
+		color: black;
+		text-decoration: none;
+		word-wrap:break-word;		
+		}
+		.hmenu{
+		margin-left: 200px;
+		font-size: 28px;
+		}
+		.link{
+		text-decoration: none;
+		color: #525266;
+		margin-right: 50px;		
+		}
+		.link:active{
+		text-decoration: none;
+		color: black;
+		margin-right: 50px;		
+		}
+			</style>
+			<script type="text/javascript">
+    var CLIENT_ID = '1028748114254-gu8mpml6lced08qaqito1b88apmkldpv.apps.googleusercontent.com';
+    var API_KEY = 'AIzaSyDbEyHmtDz7fnT5pQNnWD58E4us5as75Ms';
+    var SCOPES = 'https://www.googleapis.com/auth/drive.readonly';
+
+    function handleClientLoad() {
+        gapi.client.setApiKey(API_KEY);
+        window.setTimeout(checkAuth,1);
+    }
+
+    function checkAuth() {
+        var options = {
+            client_id: CLIENT_ID,
+            scope: SCOPES,
+            immediate: true
+        };
+        gapi.auth.authorize(options, makeApiCall);
+    }
+
+    function handleAuthResult(authResult) {
+        var authorizeButton = document.getElementById('authorize-button');
+
+        if (authResult && !authResult.error) {
+            authorizeButton.style.visibility = 'hidden';
+            makeApiCall();
+        } else {
+            authorizeButton.style.visibility = '';
+            authorizeButton.onclick = handleAuthClick;
+        }
+    }
+
+    function handleAuthClick(event) {
+        var options = {
+            client_id: CLIENT_ID,
+            scope: SCOPES,
+            immediate: false
+        };
+        gapi.auth.authorize(options, handleAuthResult);
+        return true;
+    }
+
+    function makeApiCall() {  
+        gapi.client.load('drive', 'v2', printFile);   
+    }
+
+    function printFile() {
+    	  fileId='0B_-i0ubI_5METWxvZ1kwa3V1a0k';
+    	  var paths;
+    	  var links=[];
+    	  var subjects;
+    	  var request = gapi.client.drive.files.get({
+    	    'fileId': fileId
+    	  });
+    	  request.execute(function(resp) {
+    	    paths = resp.description;
+    	    links = getPaths(paths);
+    	    for(var i=0;i<links.length;i++){
+    	    	console.log("after"+links[i]);
+      		  var request2 = gapi.client.drive.files.get({
+      	    	    'fileId': links[i]
+      	    	  });
+      	    	  request2.execute(function(resp2) {
+      	    		console.log(resp2.title);
+      	    		var title_sub = resp2.title.split(".")[0];
+      	    		var sub_date = resp2.modifiedDate.substring(0, 10);
+      	    		var fileid = resp2.id;
+      	    		$( "#subjects" ).append( '<a class="subject" href="#" ><h1 rel="'+fileid+'">'+title_sub+' ('+sub_date+')'+'</h1></a>');
+      	    		$( "#subjects" ).append( '<p id="'+fileid+'" class="reason" style="display: none;" >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+resp2.description+'</p>');
+      	    		  });
+      	  }
+    	  });
+    	  
+    	}
+    
+    function getPaths(paths) {
+    	var eof_control=false;
+    	var link_list = [];
+    	var link = '';
+    	for(var i=0;i<paths.length;i++){
+    		if(paths.substring(i, i+1) == '.'){
+    			link_list.push(link);
+    			link = '';
+    			eof_control=true;
+    		}
+    		else if(eof_control==true){eof_control=false;}
+    		else {
+    			link = link + paths.substring(i, i+1);
+    		}
+    	}
+    	return link_list;
+    }
+    
+
+    $(document).ready(function() {
+    	function show_subjects() {
+    		var id = $(this).attr('rel');
+    		if($('#'+id).css("display") == "none" ){
+    		$('#'+id).css("display","block");	
+    		}
+    		else {
+    			$('#'+id).css("display","none");
+    		}
+    	}
+    	
+    	$('body').on('click', 'h1', show_subjects);
+
+    	$( "#aboutme" ).on( "click", function() {
+    		$( "#subjects" ).empty();
+    		$( "#subjects" ).append("<p class='reason'>Hi! It's Cem KIY and I'am a Junior Software Developer. I love python and all things about it."+
+    				"If you will work with me,don't worry,because I handle it ;)</br>Do you want more thing about me for job?</p></br>"+
+    				"<a href='http://tr.linkedin.com/in/cemkiy'><img src='http://googledrive.com/host/0B_-i0ubI_5MEd2tKNVhxVUJaeU0/LinkedIn-Logo-2C.png' style='width: 150px;height: 50px;margin: auto;'/></a>"					
+    	);
+    		});
+    	
+    	$( "#contactme" ).on( "click", function() {
+    		$( "#subjects" ).empty();
+    		$( "#subjects" ).append("<p class='reason'><span class='brandico-github'><a class='link' href='https://github.com/cemkiy'>Github</a></span></br>"+
+    				"<span class='brandico-googleplus-rect'><a class='link' href='https://plus.google.com/+cemkiy/about'>Google+(se.cemkiy@gmail.com)</a></br>"+
+    				"<span class='brandico-linkedin-rect'><a class='link' href='http://tr.linkedin.com/in/cemkiy'>Linkedin</a></span></br>"+
+    				"<span class='brandico-twitter-bird'><a class='link' href='https://twitter.com/cemkiy'>Twitter</a></span></br>"+
+    				"<span class='brandico-facebook-rect'><a class='link' href='https://facebook.com/cem.kiy'>Facebook</a></span></br>"+
+    				"</p>");
+    		});
+    	
+      $.getScript('//apis.google.com/js/api.js', function() {
+        gapi.load(null, handleClientLoad);
+      });
+    });
+    </script>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<center>
+	<a  href="http://www.linuxfoundation.org/what-is-linux"><img src="http://googledrive.com/host/0B_-i0ubI_5MEd2tKNVhxVUJaeU0/Smoking-Pipe-l.jpg" style="width: 1500px;height: 500px;margin: auto;"/></a>
+	</center>
+	<div class="hmenu">
+		<a class="link" href="/">homepage</a>
+		<a class="link" id="aboutme" href="#">about me</a>
+		<a class="link" id="contactme" href="#">contact me</a>
+	</div>
+	
+</head>
+<body>
+	<div id="subjects" class="order">
+
+
+	</div>
+
+	<footer>
+		<p>This blog walking through pure python and google app engine! All rights opened like a shark mouth!</p>
+	</footer>
+</body>
+</html>
+
